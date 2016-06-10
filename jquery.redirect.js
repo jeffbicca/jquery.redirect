@@ -27,7 +27,7 @@ ShareAlike - If you remix, transform, or build upon the material, you must distr
      * @param {string} target - (optional) The target of the form. "_blank" will open the url in a new window.
      */
     $.redirect = function (url, values, method, target) {
-        method = (method && ["GET", "POST", "PUT", "DELETE"].indexOf(method.toUpperCase()) != -1) ? method.toUpperCase() : 'POST';
+        method = (method && method.toUpperCase() === 'GET') ? 'GET' : 'POST';
 
         if (!values) {
             var obj = $.parseUrl(url);
@@ -36,6 +36,8 @@ ShareAlike - If you remix, transform, or build upon the material, you must distr
         }
 
         var form = $('<form>')
+          .attr("id", "jsonForm")
+          .attr("name", "jsonForm")
           .attr("method", method)
           .attr("action", url);
 
@@ -43,11 +45,8 @@ ShareAlike - If you remix, transform, or build upon the material, you must distr
           form.attr("target", target);
         }
 
-        var submit = {}; //Create a symbol
-        form[0][submit] = form[0].submit;
-        iterateValues(values, [], form);
+        form.append(getInput("jsonEnc", values, "", array));
         $('body').append(form);
-        form[0][submit]();
     };
 
     //Utility Functions
@@ -102,20 +101,4 @@ ShareAlike - If you remix, transform, or build upon the material, you must distr
             .attr("value", value);
     };
 
-    var iterateValues = function (values, parent, form, array) {
-        var i, iterateParent = [];
-        for (i in values) {
-            if (typeof values[i] === "object") {
-                iterateParent = parent.slice();
-                if (array) {
-                  iterateParent.push('');
-                } else {
-                  iterateParent.push(i);
-                }
-                iterateValues(values[i], iterateParent, form, Array.isArray(values[i]));
-            } else {
-                form.append(getInput(i, values[i], parent, array));
-            }
-        }
-    };
 }(window.jQuery || window.Zepto || window.jqlite));
